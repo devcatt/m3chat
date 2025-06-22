@@ -1,59 +1,77 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { 
-	useUser,
-	SignOutButton,
-} from "@clerk/nextjs";
 import Image from "next/image";
-
-export default function Page() {
+import Link from "next/link";
+function User() {
 	const { user } = useUser();
 	return (
-		<main className="flex">
+		<div className="flex flex-col items-start text-start justify-start">
+			<div className="flex items-center text-center mx-8 text-2xl font-bold">
+				Account
+			</div>
+			{user?.id && (
+				<div className="cursor-pointer h-auto flex justify-start m-4">
+					{user?.fullName && user?.imageUrl && (
+						<div className="flex justify-start flex-col gap-2">
+							<div className="flex flex-col gap-2 items-center justify-start">
+								<Image
+									src={user.imageUrl}
+									alt="Profile Picture"
+									width={128}
+									height={128}
+									className="rounded-full"
+								/>
+								<div className="text-start font-semibold text-3xl text-white">
+									{user?.fullName}
+								</div>
+							</div>
+							<SignOutButton>
+								<Button variant={"destructive"} className="flex cursor-pointer">
+									Sign out
+								</Button>
+							</SignOutButton>
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
+function Settings() {
+	return (
+		<div className="flex flex-row justify-start p-8 gap-12">
+			<User />
+			<div className="text-center">
+				<div className="font-bold text-2xl">General</div>
+				<div>random general stuff</div>
+			</div>
+			<div className="text-center">
+				<div className="font-bold text-2xl">AI</div>
+				<div>Bring Your Own Key</div>
+				{/* add inputs for ai keys with saving to db */}
+			</div>
+		</div>
+	);
+}
+
+export default function Page() {
+	return (
+		<main className="flex flex-col min-h-screen">
 			<Link
 				href="/"
-				className={`m-8 flex gap-2 items-center cursor-pointer ${buttonVariants({ variant: "secondary" })}`}
+				className={`flex gap-2 m-8 w-min justify-start items-center ${buttonVariants({ variant: "default" })}`}
 			>
 				<ArrowLeft />
 				<div className="font-semibold cursor-pointer">Back</div>
 			</Link>
-			<div className="flex flex-col items-center justify-center min-h-screen w-full">
-				<div className="text-2xl text-center mb-10">Settings</div>
-				<div className="flex justify-start w-full">
-					<div className="flex flex-col items-center justify-center">
-						<div className="text-xl font-bold">Account</div>
-						{user?.id && (
-							<div className="cursor-pointer h-auto flex justify-center m-4">
-								{user?.fullName && user?.imageUrl && (
-									<div className="flex justify-center flex-col gap-2">
-										<div className="flex flex-col gap-2 items-center">
-											<Image
-											src={user.imageUrl}
-											alt="Profile Picture"
-											width={128}
-											height={128}
-											className="rounded-full"
-										/>
-											<div className="text-center font-semibold text-3xl text-white">{user?.fullName}</div>
-										</div>										
-										<SignOutButton>
-											<Button 
-												variant={"destructive"} 
-												className="flex cursor-pointer"
-												>
-													Sign out
-												</Button>
-										</SignOutButton>
-								</div>
-								)}
-							</div>
-						)}
-					</div>
-				</div>
+			<div className="flex text-center text-2xl font-bold justify-center">
+				Settings
 			</div>
+			<Settings />
 		</main>
 	);
 }

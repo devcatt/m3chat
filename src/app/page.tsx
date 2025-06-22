@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
 	Popover,
 	PopoverContent,
@@ -9,9 +8,10 @@ import {
 } from "@/components/ui/popover";
 import { examplePrompts } from "@/lib/example-prompts";
 import useAddUser from "@/lib/use-add-user";
-import { useUser } from "@clerk/nextjs";
-import { SendHorizonal } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
+import { useUser } from "@clerk/nextjs";
+import { Input } from "@/components/ui/input";
+import { SendHorizonal } from "lucide-react";
 
 function ExamplePrompts() {
 	return (
@@ -24,17 +24,14 @@ function ExamplePrompts() {
 						>
 							{Object.keys(examplePrompts)[index]}
 						</PopoverTrigger>
-						<PopoverContent
-							className="flex flex-col"
-						>
+						<PopoverContent className="flex flex-col gap-2 w-full">
 							{" "}
-							{/* hidden is for a random bug: when you entered an example prompt it would leave the ui in a corner */}
 							{category.map((prompt: string, index: number) => (
 								<Button
 									key={index}
 									variant={"link"}
 									className="cursor-pointer"
-									onClick={(e) => console.log(e.currentTarget.value)}
+									onClick={() => console.log(prompt)}
 								>
 									{prompt}
 								</Button>
@@ -45,7 +42,7 @@ function ExamplePrompts() {
 			)}
 		</div>
 	);
-};
+}
 
 export default function Home() {
 	const { messages, input, handleSubmit, handleInputChange } = useChat();
@@ -54,56 +51,62 @@ export default function Home() {
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between">
 			<div className="flex flex-col text-2xl w-full">
-				<div className="flex flex-col my-10 mx-10">
-					{messages.map(msg => {
-						switch(msg.role) {
+				<div className="flex flex-col m-10 text-xl">
+					{messages.map((msg) => {
+						switch (msg.role) {
 							case "user":
 								return (
-									<div key={msg.id} className="flex justify-end">
+									<div key={msg.id} className="flex justify-end p-2">
 										{msg.parts.map((part, i) => {
 											switch (part.type) {
-												case "text": 
-												return <div key={`${msg.id}-${i}`}>{part.text}</div>
+												case "text":
+													return <div key={`${msg.id}-${i}`}>{part.text}</div>;
 											}
 										})}
 									</div>
-								)
+								);
 							case "assistant":
 								return (
-									<div key={msg.id} className="flex justify-start">
+									<div key={msg.id} className="flex justify-start w-[75%] p-2">
 										{msg.parts.map((part, i) => {
 											switch (part.type) {
-												case "text": 
-												return <div key={`${msg.id}-${i}`}>{part.text}</div>
+												case "text":
+													return <div key={`${msg.id}-${i}`}>{part.text}</div>;
 											}
 										})}
 									</div>
-								)
-							default:
-								return null
+								);
 						}
 					})}
 				</div>
-				<div hidden={messages.length > 0}>
+				<div hidden={messages.length > 0 || input.length > 0}>
 					<div className="m-2 text-center items-center flex flex-col">
-						{user?.fullName ? `How can I help you, ${user?.fullName}?` : "How can I help you?"}
-						{user?.fullName && <span className="font-bold">{user?.fullName}</span>}
-						&nbsp;
+						{user?.fullName ? (
+							<div>
+								How can I help you,{" "}
+								<span className="font-bold">{user?.fullName}</span>?{" "}
+							</div>
+						) : (
+							"How can I help you?"
+						)}
 					</div>
 					<ExamplePrompts />
 				</div>
 			</div>
-			<form onSubmit={handleSubmit} className="flex flex-row container gap-2 my-4">
-				<Input
-					placeholder="Ask something..."
-					className="flex-grow"
+			<form 
+				onSubmit={handleSubmit} 
+				className="flex flex-row gap-2 p-2"
+			>
+				<Input 
+					placeholder="Enter your message..." 
+					onChange={handleInputChange} 
 					value={input}
-					onChange={handleInputChange}
+					className="w-full"
 				/>
-				<Button type="submit" className="cursor-pointer">
+				<Button type="submit" className="cursor-pointer flex items-center w-auto">
 					<SendHorizonal />
 				</Button>
-			</form>
+        	</form>
 		</main>
 	);
-};
+}

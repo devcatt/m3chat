@@ -20,4 +20,4 @@ export default function useAddUser() {
 			},
 		});
 	}, [user.isSignedIn, user.isLoaded, userData?.id]);
-};
+}

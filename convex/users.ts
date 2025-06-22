@@ -9,7 +9,7 @@ export const add = mutation({
     },
     handler: async (ctx, args) => {
         const id = await ctx.auth.getUserIdentity();
-        if (!id || !id?.name || !id?.tokenIdentifier) return;
+        if (!id?.name || !id?.tokenIdentifier) return;
         const query = ctx.db.query("users")
             .withIndex("by_token", (q) => q.eq("tokenId", id.tokenIdentifier))
             .unique();
@@ -27,7 +27,8 @@ export const add = mutation({
 export const get = query({
     handler: async (ctx) => {
         const id = await ctx.auth.getUserIdentity();
-        if (!id || !id?.name || !id?.tokenIdentifier) return;
+        if (!id) return;
+        if (!id.name || !id.tokenIdentifier) return;
         return await ctx.db.query("users")
             .withIndex("by_token", (q) => q.eq("tokenId", id.tokenIdentifier))
             .unique();
@@ -37,12 +38,13 @@ export const get = query({
 export const remove = mutation({
     handler: async (ctx) => {
         const user = await ctx.auth.getUserIdentity();
-        if(!user || !user.tokenIdentifier) throw new Error("No identity found.");
+        if(!user) return;
+        if(!user.tokenIdentifier) return;
         const userTable = await ctx.db
             .query("users")
             .withIndex("by_token", (q) => q.eq("tokenId", user.tokenIdentifier))
             .unique();
-        if(!userTable) throw new Error("User not found.");
+        if(!userTable) return;
         await ctx.db.delete(userTable._id);
     }
 });
