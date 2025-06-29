@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import useAddUser from "@/lib/use-add-user";
+import { useAddUser} from "@/lib/use-add-user";
 import { useChat } from "@ai-sdk/react";
 import { Input } from "@/components/ui/input";
 import { SendHorizonal } from "lucide-react";
@@ -9,58 +9,64 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { usePathname } from "next/navigation";
 import { Id } from "../../../../convex/_generated/dataModel";
+import type { UIMessage, Message } from "ai";
+
+async function useOnMessageFinish(newMsg: Message, messages: UIMessage[], threadId: Id<"threads">) {		
+	const thread = useQuery(api.threads.getThread, {
+		threadId: threadId,
+	});
+	const updateMessageThreads = useMutation(api.threads.update);
+	const allMessages = [{
+		role: newMsg.role,
+		parts: newMsg.parts,
+		id: newMsg.id,
+		createdAt: newMsg.createdAt?.toISOString()
+	},
+	...messages.map((msg) => {
+		return {
+			role: msg.role,
+			parts: msg.parts,
+			id: msg.id,
+			createdAt: msg.createdAt?.toISOString()
+		}
+	})]
+	console.log("newMsg", newMsg);
+	console.log("messages", messages);
+	if(!thread) return;
+	await updateMessageThreads({
+		threadId: thread._id,
+		newParts: allMessages,
+	})
+}
 
 export default function Page() {
-	const threadId = usePathname().split("/")[2]
-	const updateMessageThreads = useMutation(api.threads.update);
+	useAddUser();
+	const threadId = usePathname().split("/")[2];
 	const thread = useQuery(api.threads.getThread, {
 		threadId: threadId as Id<"threads">,
 	});
-	interface Message {
-		id: string
-		role: string
-		content: string
-		createdAt?: Date | string | undefined
-		parts: Array<{ type: string, text?: string }>
-	}
-	const { messages, input, handleSubmit, handleInputChange } = useChat({ 
-		"onFinish": async () => {
-			if(!thread || !thread.messages) return;
-			const newMessages = messages.map((msg) => msg);
-			const allMessages: Array<Message> = [...thread.messages.map(msg => {
-				return {
-					id: msg.id,
-					role: msg.role,
-					content: msg.content,
-					createdAt: msg.createdAt?.toLocaleString(),
-					parts: msg.parts,
-				}
-			}), ...newMessages];
-			const mappedMessages = () => {
-				let messages: Message[] = [];
-				allMessages.map(msg => {
-					messages.push({
-						id: msg.id,
+	const updateMessageThreads = useMutation(api.threads.update);
+	const { messages, input, handleSubmit, handleInputChange } = useChat({
+		"onFinish": async (newMsg: Message) => {
+			console.log(newMsg);
+			const allMessages = [
+				// later fix this shit that it's one message behind
+				// my idea is that messages doesn't have the new message yet
+				...messages.map((msg) => {
+					return {
 						role: msg.role,
-						content: msg.content,
-						createdAt: msg.createdAt?.toLocaleString(),
 						parts: msg.parts,
-					})
-				})
-				return messages;
-			}
-			const allMappedMessages = mappedMessages();
-			updateMessageThreads({
-				threadId: threadId as Id<"threads">,
-				newMessages: {
-					id: allMappedMessages,
-				},
+						id: msg.id,
+						createdAt: msg.createdAt?.toISOString()
+				}
+			})]
+			if(!thread) return;
+			await updateMessageThreads({
+				threadId: thread._id,
+				newParts: allMessages,	
 			})
-		},
-		// fix whatever the fuck this is or use patchpackage
+		}
 	});
-	useAddUser();	
-	
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between">
 			<div className="flex flex-col text-2xl w-full">

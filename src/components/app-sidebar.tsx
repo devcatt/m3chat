@@ -60,7 +60,7 @@ export default function AppSidebar() {
 						<SidebarGroupLabel className="flex flex-row gap-2">
 							<Button 
 								variant={"ghost"} 
-								className="cursor-pointer justify-start"
+								className="flex justify-center cursor-pointer"
 								onMouseDown={(e) => {
 									e.preventDefault();
 									createThread({
@@ -80,7 +80,7 @@ export default function AppSidebar() {
 									<SidebarMenuButton className="cursor-pointer h-auto">
 										<Link 
 											href={`/chat/${thread._id}`}
-											className="flex w-full"
+											className="flex w-full justify-center"
 										>{`${thread.name}`}</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>

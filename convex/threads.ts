@@ -4,7 +4,7 @@ import { mutation, query } from "./_generated/server";
 export const add = mutation({
     args: {
         name: v.string(),
-        messages: v.optional(v.any()),
+        parts: v.optional(v.any()),
     },
     handler: async (ctx, args) => {
         const user = await ctx.auth.getUserIdentity()
@@ -12,7 +12,7 @@ export const add = mutation({
         await ctx.db.insert("threads", {
             name: args.name,
             authorTokenId: user.tokenIdentifier,
-            messages: args.messages,
+            parts: args.parts,
         })
     }
 });
@@ -52,13 +52,13 @@ export const remove = mutation({
 export const update = mutation({
     args: {
         threadId: v.id("threads"),
-        newMessages: v.optional(v.any()), // for now i'll let it be an any, later take care of the type
+        newParts: v.optional(v.any()), // for now i'll let it be an any, later take care of the type
     },
     handler: async (ctx, args) => {
         const user = await ctx.auth.getUserIdentity()
-        if (!user || !user.tokenIdentifier) return; // what the fuck should i do hereeeeeeeeeeeeeeee
+        if (!user || !user.tokenIdentifier) return;
         await ctx.db.patch(args.threadId, {
-            messages: args.newMessages,
+            parts: args.newParts,
         })
     }
 })
