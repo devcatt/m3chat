@@ -25,16 +25,13 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Plus } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
-import { useSearchParams } from "next/navigation";
 
 export default function AppSidebar() {
-	const [search, setSearch] = useState("");
+	const [ search, setSearch ] = useState("");
 	const { user } = useUser();
 	const threads = useQuery(api.threads.get);
 	const createThread = useMutation(api.threads.add);
 	const { messages } = useChat();
-	const params = useSearchParams();
-	if (!threads) return null;
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -63,10 +60,15 @@ export default function AppSidebar() {
 								className="flex justify-center cursor-pointer"
 								onMouseDown={(e) => {
 									e.preventDefault();
+									if(!threads || !messages) return;
 									createThread({
 										name: `${threads.length + 1}`,
-										messages: messages,
-										// todo: make this name editable and something useful from the start
+										messages: messages.map((message) => ({
+											id: message.id,
+											createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+											role: message.role.toString(),
+											content: message.content,
+										})),
 									});
 								}}
 							>	
@@ -74,7 +76,7 @@ export default function AppSidebar() {
 							</Button>
 							<div>Threads</div>
 						</SidebarGroupLabel>
-						{threads.map((thread) => (
+						{threads ? threads.map((thread) => (
 							<SidebarMenu key={thread._id}>
 								<SidebarMenuItem className="h-auto">
 									<SidebarMenuButton className="cursor-pointer h-auto">
@@ -85,7 +87,7 @@ export default function AppSidebar() {
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							</SidebarMenu>
-						))}
+						)) : null}
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

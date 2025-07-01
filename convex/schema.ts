@@ -12,14 +12,11 @@ export default defineSchema({
     threads: defineTable({
         name: v.string(),
         authorTokenId: v.string(),
-        parts: v.optional(v.array(v.object({
-            role: v.string(),
-            parts: v.array(v.object({
-                type: v.string(),
-                text: v.optional(v.string()),
-            })),
-            id: v.string(),
+        messages: v.optional(v.array(v.object({
+            content: v.string(),
             createdAt: v.string(),
+            role: v.string(),
+            id: v.string(),
         }))),
     }).index("by_author", ["authorTokenId"]),
 });

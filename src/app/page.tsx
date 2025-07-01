@@ -7,11 +7,15 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { examplePrompts } from "@/lib/example-prompts";
-import useAddUser from "@/lib/use-add-user";
+import { useAddUser } from "@/lib/use-add-user";
 import { useChat } from "@ai-sdk/react";
 import { useUser } from "@clerk/nextjs";
 import { Input } from "@/components/ui/input";
 import { SendHorizonal } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { usePathname } from "next/navigation";
+import { Id } from "../../convex/_generated/dataModel";
 
 function ExamplePrompts() {
 	return (
@@ -47,6 +51,11 @@ function ExamplePrompts() {
 export default function Home() {
 	const { messages, input, handleSubmit, handleInputChange } = useChat();
 	const { user } = useUser();
+	const threadId = usePathname().split("/")[2] as Id<"threads">;
+	const dbThread = useQuery(api.threads.getThread, {
+		threadId: threadId,
+	});
+	if (!dbThread || !dbThread.messages) return;
 	useAddUser();
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between">
