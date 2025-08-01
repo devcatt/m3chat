@@ -13,21 +13,21 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { useChat } from "@ai-sdk/react";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
-import { Button } from "./ui/button";
-
 import { useUser } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { useQuery, useMutation } from "convex/react";
+import { Suspense } from "react";
 import { api } from "../../convex/_generated/api";
-import { Plus } from "lucide-react";
-import { useChat } from "@ai-sdk/react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Skeleton } from "./ui/skeleton";
 
 export default function AppSidebar() {
-	const [ search, setSearch ] = useState("");
 	const { user } = useUser();
 	const threads = useQuery(api.threads.get);
 	const createThread = useMutation(api.threads.add);
@@ -42,52 +42,54 @@ export default function AppSidebar() {
 					<SidebarGroupContent className="flex flex-row gap-2">
 						<Input
 							placeholder="Search for threads..."
-							onChange={(e) => setSearch(e.target.value)}
-							value={search}
-								onKeyDown={(e) => {
-									if (e.key === "Enter") {
-										console.log(search);
-									}
-								}}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									console.log(e.currentTarget.value);
+								}
+							}}
 						/>
 					</SidebarGroupContent>
 				</SidebarGroup>
 				<SidebarGroup className="flex flex-col gap-2">
 					<SidebarGroupContent>
 						<SidebarGroupLabel className="flex flex-row gap-2">
-							<Button 
-								variant={"ghost"} 
+							<Button
+								variant={"ghost"}
 								className="flex justify-center cursor-pointer"
 								onMouseDown={(e) => {
 									e.preventDefault();
-									if(!threads || !messages) return;
+									if (!threads || !messages) return;
 									createThread({
 										name: `${threads.length + 1}`,
 										messages: messages.map((message) => ({
 											id: message.id,
-											createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+											createdAt:
+												message.createdAt?.toISOString() ??
+												new Date().toISOString(),
 											role: message.role.toString(),
 											content: message.content,
 										})),
 									});
 								}}
-							>	
+							>
 								<Plus />
 							</Button>
 							<div>Threads</div>
 						</SidebarGroupLabel>
-						{threads ? threads.map((thread) => (
-							<SidebarMenu key={thread._id}>
-								<SidebarMenuItem className="h-auto">
-									<SidebarMenuButton className="cursor-pointer h-auto">
-										<Link 
-											href={`/chat/${thread._id}`}
-											className="flex w-full justify-center"
-										>{`${thread.name}`}</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							</SidebarMenu>
-						)) : null}
+						{threads
+							? threads.map((thread) => (
+									<SidebarMenu key={thread._id}>
+										<SidebarMenuItem className="h-auto">
+											<SidebarMenuButton className="cursor-pointer h-auto">
+												<Link
+													href={`/chat/${thread._id}`}
+													className="flex w-full justify-center"
+												>{`${thread.name}`}</Link>
+											</SidebarMenuButton>
+										</SidebarMenuItem>
+									</SidebarMenu>
+								))
+							: null}
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
@@ -99,37 +101,42 @@ export default function AppSidebar() {
 					<SidebarGroupContent>
 						<SidebarMenu>
 							<SidebarMenuItem>
-								{user?.id ? (
-									<Link href="/settings">
-										<SidebarMenuButton className="cursor-pointer h-auto flex justify-center">
-											{user?.fullName && user?.imageUrl && (
-												<div className="flex flex-row gap-2 items-center">
-													<Image
-														src={user.imageUrl}
-														alt="Profile Picture"
-														width={32}
-														height={32}
-														className="rounded-full"
-													/>
-													<div className="text-center">{user?.fullName}</div>
-												</div>
-											)}
-										</SidebarMenuButton>
-									</Link>
-								) : (
-									<div className="flex flex-row gap-2 justify-center">
-										<SignInButton>
-											<Button variant={"default"} className="cursor-pointer">
-												Sign in
-											</Button>
-										</SignInButton>
-										<SignUpButton>
-											<Button variant={"default"} className="cursor-pointer">
-												Sign up
-											</Button>
-										</SignUpButton>
-									</div>
-								)}
+								<Suspense
+									fallback={<Skeleton className="w-8 h-8 rounded-full" />}
+								>
+									{user?.id ? (
+										<Link href="/settings">
+											<SidebarMenuButton className="cursor-pointer h-auto flex justify-center">
+												{user?.fullName && user?.imageUrl && (
+													<div className="flex flex-row gap-2 items-center">
+														<Image
+															src={user.imageUrl}
+															alt="Profile Picture"
+															width={32}
+															height={32}
+															className="rounded-full"
+														/>
+
+														<div className="text-center">{user?.fullName}</div>
+													</div>
+												)}
+											</SidebarMenuButton>
+										</Link>
+									) : (
+										<div className="flex flex-row gap-2 justify-center">
+											<SignInButton>
+												<Button variant={"default"} className="cursor-pointer">
+													Sign in
+												</Button>
+											</SignInButton>
+											<SignUpButton>
+												<Button variant={"default"} className="cursor-pointer">
+													Sign up
+												</Button>
+											</SignUpButton>
+										</div>
+									)}
+								</Suspense>
 							</SidebarMenuItem>
 						</SidebarMenu>
 					</SidebarGroupContent>
@@ -137,4 +144,4 @@ export default function AppSidebar() {
 			</SidebarFooter>
 		</Sidebar>
 	);
-};
+}

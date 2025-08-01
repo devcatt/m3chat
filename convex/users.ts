@@ -4,7 +4,7 @@ import { v } from "convex/values";
 export const add = mutation({
     args: {
         settings: v.object({
-            openrouterKey: v.optional(v.string()),
+            openAiKey: v.optional(v.string()),
         })
     },
     handler: async (ctx, args) => {
@@ -18,7 +18,7 @@ export const add = mutation({
             name: id.name,
             tokenId: id.tokenIdentifier,
             settings: args.settings ?? {
-                openrouterKey: undefined,
+                openAiKey: undefined,
             },
         })
     }

@@ -65,8 +65,6 @@ export const update = mutation({
         })),
     },
     handler: async (ctx, args) => {
-        const user = await ctx.auth.getUserIdentity()
-        if (!user || !user.tokenIdentifier) return;
         await ctx.db.patch(args.threadId, {
             messages: args.messages,
         })

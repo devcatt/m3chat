@@ -8,16 +8,15 @@ import { api } from "../../convex/_generated/api";
 export function useAddUser() {
 	const user = useUser();
 	const userData = user.user;
-	const addUser = useMutation(api.users.add);
+	const useAddUser = useMutation(api.users.add);
 	const dbUser = useQuery(api.users.get);
 	useEffect(() => {
-		if (!user || !user.isSignedIn || !user.isLoaded) return;
+		if (!user.isSignedIn || !user.isLoaded) return;
 		if (dbUser?.name === userData?.firstName) return;
-		addUser({
+		useAddUser({
 			settings: {
-				openrouterKey: "nothinghereyet",
-				// add byok later
+				openAiKey: "",
 			},
 		});
-	}, [user.isSignedIn, user.isLoaded, userData?.id]);
-};
+	}, [user.isSignedIn, user.isLoaded, dbUser?.name, userData?.firstName]);
+}

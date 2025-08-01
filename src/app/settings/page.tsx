@@ -5,6 +5,8 @@ import { SignOutButton, useUser } from "@clerk/nextjs";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { api } from "../../../convex/_generated/api";
 function User() {
 	const { user } = useUser();
 	return (
