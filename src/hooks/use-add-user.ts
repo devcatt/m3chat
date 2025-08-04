@@ -12,11 +12,10 @@ export function useAddUser() {
 	const dbUser = useQuery(api.users.get);
 	useEffect(() => {
 		if (!user.isSignedIn || !user.isLoaded) return;
-		if (dbUser?.name === userData?.firstName) return;
 		useAddUser({
 			settings: {
 				openAiKey: "",
 			},
 		});
-	}, [user.isSignedIn, user.isLoaded, dbUser?.name, userData?.firstName]);
+	}, [user.isSignedIn, user.isLoaded, userData?.firstName]);
 }

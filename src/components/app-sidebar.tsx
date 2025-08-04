@@ -20,7 +20,6 @@ import { useMutation, useQuery } from "convex/react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { Suspense } from "react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "./ui/button";
@@ -78,18 +77,18 @@ export default function AppSidebar() {
 						</SidebarGroupLabel>
 						{threads
 							? threads.map((thread) => (
-									<SidebarMenu key={thread._id}>
-										<SidebarMenuItem className="h-auto">
-											<SidebarMenuButton className="cursor-pointer h-auto">
-												<Link
-													href={`/chat/${thread._id}`}
-													className="flex w-full justify-center"
-												>{`${thread.name}`}</Link>
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									</SidebarMenu>
-								))
-							: null}
+								<SidebarMenu key={thread._id}>
+									<SidebarMenuItem>
+										<SidebarMenuButton className="cursor-pointer h-auto">
+											<Link
+												href={`/chat/${thread._id}`}
+												className="flex w-full justify-center"
+											>{`${thread.name}`}</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								</SidebarMenu>
+							))
+						: null}
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

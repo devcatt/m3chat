@@ -5,9 +5,8 @@ import { SignOutButton, useUser } from "@clerk/nextjs";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { api } from "../../../convex/_generated/api";
-function User() {
+
+function UserComponent() {
 	const { user } = useUser();
 	return (
 		<div className="flex flex-col items-start text-start justify-start">
@@ -46,7 +45,7 @@ function User() {
 function Settings() {
 	return (
 		<div className="flex flex-row justify-start p-8 gap-12">
-			<User />
+			<UserComponent />
 			<div className="text-center">
 				<div className="font-bold text-2xl">General</div>
 				<div>random general stuff</div>

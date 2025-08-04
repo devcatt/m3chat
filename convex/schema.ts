@@ -3,7 +3,6 @@ import { v } from "convex/values";
 
 export default defineSchema({
     users: defineTable({
-        name: v.string(),
         tokenId: v.string(),
         settings: v.object({
             openAiKey: v.optional(v.string()),

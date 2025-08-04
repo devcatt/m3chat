@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import AppSidebar from "@/components/app-sidebar";
 import ConvexClientProvider from "@/components/convex-client-provider";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import ThemeSwitch from "@/components/theme-switch";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -34,7 +34,7 @@ export default function RootLayout({
 				<body
 					className={`${geistSans.variable} ${geistMono.variable} antialiased overscroll-none`}
 				>
-					<ThemeProvider 
+					<ThemeProvider
 						attribute="class"
 						defaultTheme="system"
 						enableSystem
