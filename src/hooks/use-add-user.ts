@@ -9,7 +9,6 @@ export function useAddUser() {
 	const user = useUser();
 	const userData = user.user;
 	const useAddUser = useMutation(api.users.add);
-	const dbUser = useQuery(api.users.get);
 	useEffect(() => {
 		if (!user.isSignedIn || !user.isLoaded) return;
 		useAddUser({

@@ -14,7 +14,18 @@ import { api } from "../../../../convex/_generated/api";
 export default function Page() {
 	const id = usePathname().split("/")[2] as Id<"threads">;
 	useAddUser();
-	const { input, handleSubmit, handleInputChange, messages } = useChat({ id });
+	const { input, handleSubmit, handleInputChange, messages } = useChat({
+		onFinish: async (msg) => {
+			console.log(msg);
+			console.log(messages)
+			const userObj = {
+				id: `user-${crypto.randomUUID()}`,
+				role: "user",
+				content: input,
+			};
+			console.log(userObj);
+		},
+	});
 	const dbMessages = useQuery(api.threads.getThread, { threadId: id })?.messages;
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between overscroll-none">
@@ -89,7 +100,7 @@ export default function Page() {
 					})}
 				</div>
 			</div>
-			<form onSubmit={handleSubmit} className="flex flex-row gap-2 p-2 w-[75%]">
+			<form onSubmit={(e) => handleSubmit(e)} className="flex flex-row gap-2 p-2 w-[75%]">
 				<Input
 					onChange={handleInputChange}
 					value={input}
@@ -105,4 +116,4 @@ export default function Page() {
 			</form>
 		</main>
 	);
-}
+};

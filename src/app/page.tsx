@@ -2,24 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAddUser } from "@/hooks/use-add-user";
 import { useChat } from "@ai-sdk/react";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
 import { SendHorizonal } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { useAddUser } from "@/hooks/use-add-user";
 
 export default function Home() {
 	const { messages, input, handleSubmit, handleInputChange } = useChat();
 	const { user } = useUser();
 	const threadId = usePathname().split("/")[2] as Id<"threads">;
 	if (!threadId) return;
-	const dbThread = useQuery(api.threads.getThread, {
-		threadId: threadId,
-	});
-	if (!dbThread?.messages) return;
 	useAddUser();
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between">
@@ -81,4 +75,4 @@ export default function Home() {
 			</form>
 		</main>
 	);
-}
+};
