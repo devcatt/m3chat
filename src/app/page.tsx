@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAddUser } from "@/hooks/use-add-user";
 import { useChat } from "@ai-sdk/react";
 import { useUser } from "@clerk/nextjs";
 import { SendHorizonal } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { Id } from "../../convex/_generated/dataModel";
-import { useAddUser } from "@/hooks/use-add-user";
 
 export default function Home() {
 	const { messages, input, handleSubmit, handleInputChange } = useChat();
@@ -75,4 +75,4 @@ export default function Home() {
 			</form>
 		</main>
 	);
-};
+}

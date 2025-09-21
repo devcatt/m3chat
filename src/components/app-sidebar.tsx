@@ -20,17 +20,21 @@ import { useMutation, useQuery } from "convex/react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Skeleton } from "./ui/skeleton";
+import { Trash } from "lucide-react";
 
 export default function AppSidebar() {
 	const { user } = useUser();
 	const threads = useQuery(api.threads.get);
 	const createThread = useMutation(api.threads.add);
 	const { messages } = useChat();
+	const threadId = usePathname().split("/")[2] as Id<"threads">;
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -59,15 +63,7 @@ export default function AppSidebar() {
 									e.preventDefault();
 									if (!threads || !messages) return;
 									createThread({
-										name: `${threads.length + 1}`,
-										messages: messages.map((message) => ({
-											id: message.id,
-											createdAt:
-												message.createdAt?.toISOString() ??
-												new Date().toISOString(),
-											role: message.role.toString(),
-											content: message.content,
-										})),
+										name: `Thread ${threads.length + 1}`,
 									});
 								}}
 							>
@@ -77,18 +73,18 @@ export default function AppSidebar() {
 						</SidebarGroupLabel>
 						{threads
 							? threads.map((thread) => (
-								<SidebarMenu key={thread._id}>
-									<SidebarMenuItem>
-										<SidebarMenuButton className="cursor-pointer h-auto">
-											<Link
-												href={`/chat/${thread._id}`}
-												className="flex w-full justify-center"
-											>{`${thread.name}`}</Link>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								</SidebarMenu>
-							))
-						: null}
+									<SidebarMenu key={thread._id}>
+										<SidebarMenuItem>
+											<SidebarMenuButton className="cursor-pointer h-auto">
+												<Link
+													href={`/chat/${thread._id}`}
+													className="flex w-full justify-center"
+												>{`${thread.name}`}</Link>
+											</SidebarMenuButton>
+										</SidebarMenuItem>
+									</SidebarMenu>
+								))
+							: null}
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

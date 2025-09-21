@@ -5,36 +5,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAddUser } from "@/hooks/use-add-user";
 import { useChat } from "@ai-sdk/react";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { SendHorizonal } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import Markdown from "react-markdown";
 import { api } from "../../../../convex/_generated/api";
 
 export default function Page() {
-	const id = usePathname().split("/")[2] as Id<"threads">;
+	const threadId = usePathname().split("/")[2] as Id<"threads">;
 	useAddUser();
-	const { input, handleSubmit, handleInputChange, messages } = useChat({
+	const addMessage = useMutation(api.messages.send).withOptimisticUpdate(
+		(localstore, args) => {
+			const existingMessages = localstore.getQuery(api.messages.get, {
+				threadId,
+			});
+			console.log(args);
+		},
+	);
+	const messages = useQuery(api.messages.get, { threadId });
+	const { input, handleSubmit, handleInputChange } = useChat({
 		onFinish: async (msg) => {
-			console.log(msg);
-			console.log(messages)
-			const userObj = {
-				id: `user-${crypto.randomUUID()}`,
-				role: "user",
-				content: input,
-			};
-			console.log(userObj);
+			window.scrollTo(0, document.body.scrollHeight);
+			const newMessages = [
+				{
+					msgId: `user-${crypto.randomUUID()}`,
+					role: "user",
+					content: input,
+					createdAt: new Date().toISOString(),
+					threadId,
+				},
+				{
+					msgId: msg.id,
+					role: "assistant",
+					content: msg.content,
+					createdAt: msg.createdAt?.toISOString() ?? new Date().toISOString(),
+					threadId,
+				},
+			];
+			addMessage(newMessages[0]);
+			addMessage(newMessages[1]);
 		},
 	});
-	const dbMessages = useQuery(api.threads.getThread, { threadId: id })?.messages;
+	const auth = useConvexAuth();
+	if (!auth.isAuthenticated && !auth.isLoading) return redirect("/");
 	return (
 		<main className="flex flex-col min-h-screen items-center justify-between overscroll-none">
 			<div className="flex flex-col text-2xl w-full p-14">
 				<div>
-					{dbMessages?.map((msg) => {
+					{messages?.map((msg) => {
 						if (msg.role === "user") {
 							return (
-								<div className="flex flex-col text-end" key={`user-${msg.id}`}>
+								<div
+									className="flex flex-col text-end"
+									key={`user-${msg.msgId}`}
+								>
 									<Markdown>{msg.content}</Markdown>
 								</div>
 							);
@@ -43,7 +67,7 @@ export default function Page() {
 							return (
 								<div
 									className="flex flex-col gap-2 p-2 m-2 w-[50%]"
-									key={`assistant-${msg.id}`}
+									key={`assistant-${msg.msgId}`}
 								>
 									<Markdown>{msg.content}</Markdown>
 								</div>
@@ -51,56 +75,8 @@ export default function Page() {
 						}
 					})}
 				</div>
-				<div>
-					{messages.map((msg) => {
-						if (msg.role === "user") {
-							return (
-								<div
-									className="flex flex-col gap-2 justify-end"
-									key={`user-${msg.id}`}
-								>
-									{msg.parts.map((part, i) => {
-										switch (part.type) {
-											case "text":
-												return (
-													<div
-														className="flex flex-col gap-4 text-end"
-														key={`user-${msg.id}-${i}`}
-													>
-														<Markdown>{part.text}</Markdown>
-													</div>
-												);
-										}
-									})}
-								</div>
-							);
-						}
-						if (msg.role === "assistant") {
-							return (
-								<div
-									className="flex flex-col gap-2 p-2 m-2"
-									key={`assistant-${msg.id}`}
-								>
-									{msg.parts.map((part, i) => {
-										switch (part.type) {
-											case "text":
-												return (
-													<div
-														className="flex flex-col gap-4 w-[50%]"
-														key={`assistant-${msg.id}-${i}`}
-													>
-														<Markdown>{part.text}</Markdown>
-													</div>
-												);
-										}
-									})}
-								</div>
-							);
-						}
-					})}
-				</div>
 			</div>
-			<form onSubmit={(e) => handleSubmit(e)} className="flex flex-row gap-2 p-2 w-[75%]">
+			<form onSubmit={handleSubmit} className="flex flex-row gap-2 p-2 w-[75%]">
 				<Input
 					onChange={handleInputChange}
 					value={input}
