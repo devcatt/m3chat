@@ -12,7 +12,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 export default function Home() {
 	const { messages, input, handleSubmit, handleInputChange } = useChat();
 	const { user } = useUser();
-	const threadId = usePathname().split("/")[2] as Id<"threads">;
+	const threadId = usePathname().split("/")[2] as Id<"chats">;
 	if (!threadId) return;
 	useAddUser();
 	return (

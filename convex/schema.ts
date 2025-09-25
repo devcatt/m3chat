@@ -8,17 +8,16 @@ export default defineSchema({
             openAiKey: v.optional(v.string()),
         }),
     }).index("by_token", ["tokenId"]),
-    threads: defineTable({
+    chats: defineTable({
         name: v.string(),
         authorTokenId: v.string(),
     }).index("by_author", ["authorTokenId"]),
     messages: defineTable({            
-        threadId: v.id("threads"),
+        chatId: v.id("chats"),
         authorTokenId: v.string(),
         content: v.string(),
         createdAt: v.string(),
         msgId: v.string(),
         role: v.string()
-
-    }).index("by_thread", ["threadId"]),
+    }).index("by_chat", ["chatId"]),
 });

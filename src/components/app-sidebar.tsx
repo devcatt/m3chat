@@ -27,14 +27,13 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Skeleton } from "./ui/skeleton";
-import { Trash } from "lucide-react";
 
 export default function AppSidebar() {
 	const { user } = useUser();
-	const threads = useQuery(api.threads.get);
-	const createThread = useMutation(api.threads.add);
+	const chats = useQuery(api.chats.get);
+	const createChat = useMutation(api.chats.add);
 	const { messages } = useChat();
-	const threadId = usePathname().split("/")[2] as Id<"threads">;
+	const chatId = usePathname().split("/")[2] as Id<"chats">;
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -44,7 +43,7 @@ export default function AppSidebar() {
 				<SidebarGroup>
 					<SidebarGroupContent className="flex flex-row gap-2">
 						<Input
-							placeholder="Search for threads..."
+							placeholder="Search for chats..."
 							onKeyDown={(e) => {
 								if (e.key === "Enter") {
 									console.log(e.currentTarget.value);
@@ -61,25 +60,25 @@ export default function AppSidebar() {
 								className="flex justify-center cursor-pointer"
 								onMouseDown={(e) => {
 									e.preventDefault();
-									if (!threads || !messages) return;
-									createThread({
-										name: `Thread ${threads.length + 1}`,
+									if (!chats || !messages) return;
+									createChat({
+										name: `Chat ${chats.length + 1}`,
 									});
 								}}
 							>
 								<Plus />
 							</Button>
-							<div>Threads</div>
+							<div>Chats</div>
 						</SidebarGroupLabel>
-						{threads
-							? threads.map((thread) => (
-									<SidebarMenu key={thread._id}>
+						{chats
+							? chats.map((chat) => (
+									<SidebarMenu key={chat._id}>
 										<SidebarMenuItem>
 											<SidebarMenuButton className="cursor-pointer h-auto">
 												<Link
-													href={`/chat/${thread._id}`}
+													href={`/chat/${chat._id}`}
 													className="flex w-full justify-center"
-												>{`${thread.name}`}</Link>
+												>{`${chat.name}`}</Link>
 											</SidebarMenuButton>
 										</SidebarMenuItem>
 									</SidebarMenu>

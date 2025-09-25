@@ -12,17 +12,14 @@ import Markdown from "react-markdown";
 import { api } from "../../../../convex/_generated/api";
 
 export default function Page() {
-	const threadId = usePathname().split("/")[2] as Id<"threads">;
+	const chatId = usePathname().split("/")[2] as Id<"chats">;
 	useAddUser();
 	const addMessage = useMutation(api.messages.send).withOptimisticUpdate(
-		(localstore, args) => {
-			const existingMessages = localstore.getQuery(api.messages.get, {
-				threadId,
-			});
+		(_, args) => {
 			console.log(args);
 		},
 	);
-	const messages = useQuery(api.messages.get, { threadId });
+	const messages = useQuery(api.messages.get, { chatId });
 	const { input, handleSubmit, handleInputChange } = useChat({
 		onFinish: async (msg) => {
 			window.scrollTo(0, document.body.scrollHeight);
@@ -32,14 +29,14 @@ export default function Page() {
 					role: "user",
 					content: input,
 					createdAt: new Date().toISOString(),
-					threadId,
+					chatId,
 				},
 				{
 					msgId: msg.id,
 					role: "assistant",
 					content: msg.content,
 					createdAt: msg.createdAt?.toISOString() ?? new Date().toISOString(),
-					threadId,
+					chatId,
 				},
 			];
 			addMessage(newMessages[0]);
