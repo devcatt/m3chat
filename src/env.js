@@ -3,14 +3,12 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		CONVEX_DEPLOYMENT: z.string().url(),
+		CONVEX_DEPLOYMENT: z.string(),
 		CLERK_SECRET_KEY: z.string(),
+		CLERK_FRONTEND_API_URL: z.string().url(),
 	},
 	client: {
-		CLERK_FRONTEND_API_URL: z.string().url().optional(),
-		// something is wrong with the api_url, removing the optional gives an error
-		// make sure to find a fix for this guy
-		NEXT_PUBLIC_CONVEX_URL: z.string(),
+		NEXT_PUBLIC_CONVEX_URL: z.string().url(),
 		NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
 	},
 	runtimeEnv: {
