@@ -3,7 +3,6 @@
 import type { Id } from "@/../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAddUser } from "@/hooks/use-add-user";
 import { useChat } from "@ai-sdk/react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { SendHorizonal } from "lucide-react";
@@ -12,14 +11,15 @@ import Markdown from "react-markdown";
 import { api } from "../../../../convex/_generated/api";
 
 export default function Page() {
+	const user = useQuery(api.auth.getUser);
 	const chatId = usePathname().split("/")[2] as Id<"chats">;
-	useAddUser();
 	const addMessage = useMutation(api.messages.send).withOptimisticUpdate(
-		(_, args) => {
+		(localstore, args) => {
 			console.log(args);
 		},
 	);
 	const messages = useQuery(api.messages.get, { chatId });
+	console.log(user);
 	const { input, handleSubmit, handleInputChange } = useChat({
 		onFinish: async (msg) => {
 			window.scrollTo(0, document.body.scrollHeight);
@@ -89,4 +89,4 @@ export default function Page() {
 			</form>
 		</main>
 	);
-};
+}

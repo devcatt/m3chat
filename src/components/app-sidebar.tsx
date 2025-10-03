@@ -12,28 +12,28 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-
 import { useChat } from "@ai-sdk/react";
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
-import { useUser } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
+import {
+	useMutation,
+	useQuery,
+	Unauthenticated,
+	Authenticated,
+} from "convex/react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { api } from "../../convex/_generated/api";
-import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Skeleton } from "./ui/skeleton";
+import { User } from "lucide-react";
 
 export default function AppSidebar() {
-	const { user } = useUser();
 	const chats = useQuery(api.chats.get);
 	const createChat = useMutation(api.chats.add);
-	const { messages } = useChat();
-	const chatId = usePathname().split("/")[2] as Id<"chats">;
+	const user = useQuery(api.auth.getUser);
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -59,10 +59,8 @@ export default function AppSidebar() {
 								variant={"ghost"}
 								className="flex justify-center cursor-pointer"
 								onMouseDown={(e) => {
-									e.preventDefault();
-									if (!chats || !messages) return;
 									createChat({
-										name: `Chat ${chats.length + 1}`,
+										name: `Chat ${chats?.length ? chats.length + 1 : 0}`,
 									});
 								}}
 							>
@@ -98,38 +96,44 @@ export default function AppSidebar() {
 								<Suspense
 									fallback={<Skeleton className="w-8 h-8 rounded-full" />}
 								>
-									{user?.id ? (
+									<Authenticated>
 										<Link href="/settings">
 											<SidebarMenuButton className="cursor-pointer h-auto flex justify-center">
-												{user?.fullName && user?.imageUrl && (
-													<div className="flex flex-row gap-2 items-center">
+												<div className="flex flex-row gap-2 items-center">
+													{user?.image ? (
 														<Image
-															src={user.imageUrl}
+															src={user.image}
 															alt="Profile Picture"
 															width={32}
 															height={32}
 															className="rounded-full"
 														/>
-
-														<div className="text-center">{user?.fullName}</div>
-													</div>
-												)}
+													) : (
+														<User className="w-8 h-8 rounded-full" />
+													)}
+													<div className="text-center">{user?.name}</div>
+												</div>
 											</SidebarMenuButton>
 										</Link>
-									) : (
+									</Authenticated>
+									<Unauthenticated>
 										<div className="flex flex-row gap-2 justify-center">
-											<SignInButton>
-												<Button variant={"default"} className="cursor-pointer">
-													Sign in
-												</Button>
-											</SignInButton>
-											<SignUpButton>
-												<Button variant={"default"} className="cursor-pointer">
-													Sign up
-												</Button>
-											</SignUpButton>
+											<Button
+												variant={"default"}
+												className="cursor-pointer"
+												onClick={() => redirect("/login")}
+											>
+												Log in
+											</Button>
+											<Button
+												variant={"default"}
+												className="cursor-pointer"
+												onClick={() => redirect("/signup")}
+											>
+												Sign up
+											</Button>
 										</div>
-									)}
+									</Unauthenticated>
 								</Suspense>
 							</SidebarMenuItem>
 						</SidebarMenu>
