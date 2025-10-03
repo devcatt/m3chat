@@ -1,10 +1,8 @@
-import { env } from "../src/env";
-
 export default {
-	providers: [
-		{
-			applicationID: "convex",
-			domain: env.CLERK_FRONTEND_API_URL,
-		},
-	],
+    providers: [
+        {
+            domain: process.env.CONVEX_SITE_URL,
+            applicationID: "convex",
+        },
+    ],
 };
